@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>The Wall</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        #wrapper{
+            margin: 20px auto;
+            width: 970px;
+        }
+        #header{
+            width: 100%;
+            height: 60px;
+            border-bottom: 2px solid black;
+            margin-bottom: 10px;
+        }
+        #header h1, #header h4, #header a{
+            margin-left: 10px;
+            display: inline-block;
+            vertical-align: top;
+            line-height: 60px;
+        }
+        #header h4{
+            margin-left: 490px;
+        }
+        #post_msg{
+            width: 100%;
+            height: 200px;
+        }
+        .button_size{
+            padding: 5px 10px 3px;
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+        .post_msg{
+            padding: 5px 10px 3px;
+            margin: 5px 0px 5px 840px;
+            background-color: lightskyblue;
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+        .delete_msg{
+            background-color: rgb(255, 1, 1);
+            margin: 5px 0px 5px 830px;
+        }
+        .post_cmt{
+            background-color: rgb(103, 241, 103);
+            margin: 5px 0px 5px 830px;
+        }
+        .msg_box {
+            width: 960px;
+            height: 80px;
+            resize: none;
+            padding: 5px;
+        }
+        .cmt_box {
+            width: 930px;
+            height: 80px;
+            resize: none;
+            padding: 5px;
+            margin-left: 20px;
+        }
+        .messages{
+            margin: 10px;
+            width: 950px;
+        }
+        p{
+            margin: 10px 0px;
+        }
+        .cmt_author, .cmt, .cmt_post{
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <h1>CodingDojo Wall</h1>
+            {% for info in the_user: %}
+                <h4>Welcome {{ info['first_name'] }} {{ info['last_name'] }}</h4>
+            {% endfor %}
+            <a href="/">Loggout</a>
+        </div>
+        <div id="post_msg">
+            <h2>Post a message</h2>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p style='color:red;'>{{message}}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form action="/post_msg" method='post'>
+                <textarea class="msg_box" name="msg" maxlength="600"></textarea>
+                {% for info in the_user: %}
+                    <input type="hidden" name="user_id" value={{info['id']}}>
+                {% endfor %}
+                <input class="post_msg button_size"type="submit" value="Post a message">
+            </form>
+        </div>
+        <div class="msg_wall">
+        {% for msg in messages: %}
+            <div class="messages">
+                <h4 class="msg_author">{{ msg['first_name'] }} {{ msg['last_name'] }} - {{ msg['message_created'].strftime('%Y/%m/%d %I:%M %p') }}</h4>
+                <p class="msg">{{ msg['message'] }}</p>
+                {% for info in the_user %}
+                    {% if info['id'] == msg['users_id'] %}
+                        <form action="/delete_msg" method='post'>
+                            <input type="hidden" name="delete_msg" value={{msg['id']}}>
+                            <input class="delete_msg button_size"type="submit" value="Delete message">
+                        </form>
+                    {% endif %}
+                {% endfor %}                                                    
+                {% for cmt in comments: %}
+                    {% if cmt['messages_id'] == msg['id'] %}
+                        <h4 class="cmt_author">{{ cmt['first_name'] }} {{ cmt['last_name'] }} - {{ cmt['comment_created'].strftime('%Y/%m/%d %I:%M %p') }}</h4>
+                        <p class="cmt">{{ cmt['comment'] }}</p>
+                        {% for info in the_user %}
+                            {% if info['id'] == cmt['users_id'] %}
+                                <form action="/delete_cmt" method='post'>
+                                    <input type="hidden" name="delete_cmt" value={{cmt['id']}}>
+                                    <input class="delete_msg button_size"type="submit" value="Delete comment">
+                                </form>
+                            {% endif %}
+                        {% endfor %}  
+                    {% endif %}
+                {% endfor %}                
+                <h3 class="cmt_post">Post a comment</h3>
+                <form action="/post_cmt" method='post'>
+                    <textarea class="cmt_box" name="cmt" maxlength="600"></textarea>
+                    {% for info in the_user: %}
+                        <input type="hidden" name="user_id" value={{info['id']}}>
+                    {% endfor %}
+                    <input type="hidden" name="msg_id" value={{ msg['id'] }}>                    
+                    <input class="post_cmt button_size" type="submit" value="Post a comment">
+                </form>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

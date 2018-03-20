@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Valid Email</title>
+</head>
+<body>
+    <div>
+        <p>The email address you entered {{ email }} is a VALID email address! Thank you!</p>
+        <h2>Email Addresses Entered:</h2>
+        {% for emails in all_emails: %}
+            <p>{{ emails['email'] }} {{ emails['date_added'].strftime('%Y/%m/%d %I:%M %p')}}</p> 
+            <form action="/delete" method='post'>
+                <input type="hidden" name='hidden' value={{emails['id']}} >
+                <input type="submit" value="DELETE">
+            </form>
+        {% endfor %}
+        <a href="/">Return to Main</a>
+    </div>
+</body>
+</html>
